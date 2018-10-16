@@ -25,7 +25,7 @@ class UserOutput(object):
             tvshow.StripTVShow()
             tvshow.ApiDetails()
             if tvshow.flag2:
-                tvshow.final=tvshow.ostring+" is not a tv show.It is a movie probably."
+                tvshow.final=tvshow.ostring+" is not a tv show."
             else:
                 tvshow.UseDetails()
                 if tvshow.flag2:
@@ -35,8 +35,8 @@ class UserOutput(object):
         self.findFinalString()
 
         #Mail to User
-        #R=Receiver(self.final_string,self.address)
-        #R.mailIt()
+        R=Receiver(self.final_string,self.address)
+        R.mailIt()
 
 
     #merging all outputs of all tv series into one string for one user
@@ -58,16 +58,15 @@ class UserOutput(object):
             final_li.append('\n\n')
         
         final_li="".join(final_li)
-        print(final_li)
+        #print(final_li)
         final_li = final_li.encode('utf-8')
-        
+        self.final_string=final_li
             
 
 
 
+#########################################################################################################
 
-
-##########################################################################################
 class TVSHOW():
 
     def __init__(self,value):
@@ -109,7 +108,7 @@ class TVSHOW():
         url1 = "http://www.omdbapi.com/?apikey=d77c7587&type=series&t="+self.string       
         c=0
         r1 = requests.get(url1)
-        di = json.loads(r1.text) #get json   
+        di = json.loads(r1.text)  #get json   
         try:
             self.ID=di["imdbID"] #extract tv show id
             self.Year=di["Year"] #extract year
@@ -127,8 +126,7 @@ class TVSHOW():
         
         if c==1:
             c=self.findID(c)
-        
-        
+          
         if c>=2:#it is definitely not a tv show
             self.flag2=True
         #print(self.string,self.ostring,c)
@@ -226,14 +224,14 @@ class TVSHOW():
                         ans=epli[j]
                         break
                 self.final="The previous episode of series was aired on->"+str(ans) \
-                            +".There is no information about next season or next episode."
+                            +".There is no further information(on imdb) about next season or next episode."
 
 
     #finding air date of next episode
     def extractEpisodes(self):
         n=self.TS   #total seasons
         n=int(n)
-        print(self.ostring +" has seasons:"+n)
+        #print(self.ostring +" has seasons:"+str(n))
         for i in range(1,n+1):
             url="https://www.imdb.com/title/"+self.ID+"/episodes?season="+str(i)+"&ref_=tt_eps_sn_"+str(i)
             r=requests.get(url)

@@ -3,18 +3,18 @@ from output import UserOutput
 from data import UsersData
 
 def main():
-    try:
         user_email=input("Enter your email address:\n")
         user_tvshows=input("Enter all your favorite tv series:\n")
         User=UserInput(user_email,user_tvshows)
-        #Enter user into database
-        DataBase.addUser(User)
+        try:
+            #Enter user into database
+            DataBase.addUser(User)
+        except:
+            print("The database table must be dropped first")
         #output User Details
         user_output=UserOutput(User)
         user_output.FindFinalOutput()
-    except:
-        print("The database table must be dropped first")
-
+    
 
 
 DataBase=UsersData()

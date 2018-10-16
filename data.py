@@ -6,7 +6,7 @@ class UsersData():
         self.totalUsers=0
         self.cursor=""
 
-    #database name=db1
+    #database name=mydb
     def connectData(self):
         print("Connecting to database..........")
         try:
@@ -14,7 +14,7 @@ class UsersData():
                 host="localhost",
                 user=config.rootUser,
                 password=config.pwd,
-                database="db1")
+                database="mydb")
             print("Database Connected sucessfully.\n")
         except:
             print("Error occured in connecting to database...")
