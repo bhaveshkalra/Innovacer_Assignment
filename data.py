@@ -35,8 +35,19 @@ class UsersData():
         self.totalUsers+=1  #increment users
         self.db.commit()
     
+    def showUsersData(self):
+        self.cursor.execute(" SELECT * FROM USERS ")
+        # fetch all of the rows from the query
+        data = self.cursor.fetchall ()
+        # print the rows
+        for row in data:
+            print(row[0],":",row[1])
+    
     def clearData(self):
         self.cursor.execute('Drop table users')
+
+    
+        
 
 
 

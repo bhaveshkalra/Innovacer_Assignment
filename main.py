@@ -10,7 +10,7 @@ def main():
             #Enter user into database
             DataBase.addUser(User)
         except:
-            print("The database table must be dropped first")
+            print("Either Database table is not created/Primary key error(user id enetered more than once) \n")
         #output User Details
         user_output=UserOutput(User)
         user_output.FindFinalOutput()
@@ -26,7 +26,8 @@ while(True):
         main()
         choice=input("Do you wish to continue and Enter data for other Users(yes/no)")
         if correct != (choice[0:1].upper()):
-            print("\n\nTotal Users in DB:",DataBase.totalUsers)
+            print("\n\nTotal Users in DB:"+str(DataBase.totalUsers)+"\n")
+            DataBase.showUsersData()
             DataBase.clearData()
             exit()
         else:
