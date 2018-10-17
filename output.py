@@ -29,7 +29,7 @@ class UserOutput(object):
             else:
                 tvshow.UseDetails()
                 if tvshow.flag2:
-                    tvshow.final=tvshow.ostring+":There is no such tv show.Please write the tv show name properly"
+                    tvshow.final=tvshow.ostring+":There is no such tv show.Please write the tv show name properly."
             
             self.final_di[tvshow.string]=tvshow.final
         self.findFinalString()
@@ -58,8 +58,7 @@ class UserOutput(object):
             final_li.append('\n\n')
         
         final_li="".join(final_li)
-        #print(final_li)
-        final_li = final_li.encode('utf-8')
+        print(final_li)
         self.final_string=final_li
             
 
@@ -77,6 +76,7 @@ class TVSHOW():
         self.Year=""        #year
         self.TS=0           #total seasons
         self.flag=False
+        self.flag1=False
         self.flag2=False
         self.final=""       #final output for a particular tv show
 
@@ -97,11 +97,35 @@ class TVSHOW():
             for t in a:
                 self.string=t
         except:
-            print("Please enter only a tv show")
-
+            print("\nPlease write only a tv show name.")
         #print(self.string,self.ostring) #before finalising tv series
 
 
+
+
+    def findID(self,c):
+            url="http://www.omdbapi.com/?apikey=d77c7587&type=series&t="+self.ostring
+            r1 = requests.get(url)
+            di = json.loads(r1.text) #get json   
+            try:
+                Id=di["imdbID"] #extract tv show id
+                Y=di["Year"] #extract year
+                tS=di["totalSeasons"]
+                self.ID=Id
+                self.Year=Y
+                self.string=self.ostring
+                self.TS=tS
+                if len(self.Year)==4: #it could or could not be a tv show
+                    if int(tS)>=1:#it is a tv show
+                        self.flag=True #the show started and ended in the same year
+                        c=0
+                    else:#not a tv show
+                        c+=1
+                else: # it is definitely a tv show
+                    c=0
+            except:
+                c+=1
+            return c
 
 
     def ApiDetails(self):
@@ -113,6 +137,7 @@ class TVSHOW():
             self.ID=di["imdbID"] #extract tv show id
             self.Year=di["Year"] #extract year
             tS=di["totalSeasons"] #total Seasons
+            self.TS=tS
             if len(self.Year)==4: #it could or could not be a tv show
                 if int(tS)>=1:#it is a tv show
                     self.flag=True #the show started and ended in the same year
@@ -122,48 +147,24 @@ class TVSHOW():
             else: # it is definitely a tv show
                 c=0
         except:
-            c+=1
-        
+            c+=1   
+
         if c==1:
-            c=self.findID(c)
-          
+            c=self.findID(c) 
         if c>=2:#it is definitely not a tv show
             self.flag2=True
-        #print(self.string,self.ostring,c)
+        #print(self.string,self.ostring,c) #after finalising the tv series
 
-
-
-    def findID(self,c):
-        url="http://www.omdbapi.com/?apikey=d77c7587&type=series&t="+self.ostring
-        r1 = requests.get(url)
-        di = json.loads(r1.text) #get json   
-        try:
-            Id=di["imdbID"] #extract tv show id
-            Y=di["Year"] #extract year
-            tS=di["totalSeasons"]
-            self.ID=Id
-            self.Year=Y
-            self.string=self.ostring
-            if len(self.Year)==4: #it could or could not be a tv show
-                if int(tS)>=1:#it is a tv show
-                    self.flag=True #the show started and ended in the same year
-                    c=0
-                else:#not a tv show
-                    c+=1
-            else: # it is definitely a tv show
-                c=0
-        except:
-            c+=1
-
-        return c
 
 
 
     def UseDetails(self):
         ################### CASE 1 #####################
         if len(self.Year)==9 and checkYear(self.Year):
+            print("\n"+self.ostring +" has seasons:"+str(self.TS))
             self.final="The show has finished streaming all its episodes."
         elif self.flag:
+            print("\n"+self.ostring +" has seasons:"+str(self.TS))
             self.final="The show has finished streaming all its episodes."
         ################# Other CASES ########################
         else:           
@@ -201,22 +202,29 @@ class TVSHOW():
 
 
     def nextEpisodeDate(self,epli,check):
-        flag1=False
+        self.flag1=False
         l=len(epli)
         if check==l:#all episodes have only year mentioned
             for j in range(l):
                 if epli[j] is not "":
                     ans=epli[j]
+                    self.flag1=True
                     break
-            self.final="The next season begins in:"+str(ans)+"."
+            if self.flag1==False:
+                self.final="There is no further information(on imdb) about next season's next episode."
+            else:
+                self.final="The next season begins in:"+str(ans)+"."
         else:
             for j in range(0,l-check):#some episodes have only year mentioned
                 epli[j]=dateConverter(epli[j])
-                if findNextEpisode(epli[j]):
-                    flag1=True
-                    ans=epli[j]
+                FNE=findNextEpisode(epli[j])
+                if FNE[0]==True:
+                    self.flag1=True
+                    ans=str(epli[j])
+                    if FNE[1]=="Today":
+                        ans+="("+FNE[1]+")"
                     break
-            if flag1:#if next episode found
+            if self.flag1:#if next episode found
                 self.final="The next episode airs on:"+str(ans)+"."
             else:#next episode not found
                 for j in range(l-1,-1,-1):
@@ -231,7 +239,7 @@ class TVSHOW():
     def extractEpisodes(self):
         n=self.TS   #total seasons
         n=int(n)
-        #print(self.ostring +" has seasons:"+str(n))
+        print("\n"+self.ostring +" has seasons:"+str(n))
         for i in range(1,n+1):
             url="https://www.imdb.com/title/"+self.ID+"/episodes?season="+str(i)+"&ref_=tt_eps_sn_"+str(i)
             r=requests.get(url)
@@ -241,10 +249,11 @@ class TVSHOW():
                 epli=[]
                 [epli,check]=self.extractAirDates(soup,check,epli)
                 #print(epli,check)
-                self.nextEpisodeDate(epli,check)                
+                self.nextEpisodeDate(epli,check)
+                if self.flag1:
+                    break             
             except:
                 self.flag2=True
-                print("there is no such tv show")
 
 
     

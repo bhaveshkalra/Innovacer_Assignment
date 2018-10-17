@@ -24,9 +24,12 @@ def findNextEpisode(d2):
         d1=time.strptime(d1,"%Y-%m-%d")
         d2=time.strptime(d2,"%Y-%m")
     if d1<=d2:#same dates case or d2>d1
-        return True
+        if d1==d2:
+            return [True,"Today"]
+        else:
+            return [True,"No"]
     else:
-        return False
+        return [False]
 
 
 def checkYear(y):#checking for finished series
