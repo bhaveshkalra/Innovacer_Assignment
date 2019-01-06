@@ -1,4 +1,4 @@
-# Innovaccer_Assignment (SDE-Platform)
+# Next Episode Generator
 
 A terminal based Python application which uses API:**OMDB API** and **imdb.com** to fetch the next episode release date of the user's Favorite tv shows.
 
